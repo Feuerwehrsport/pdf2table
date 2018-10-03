@@ -11,21 +11,15 @@ public class RectangleOperator extends BasicOperator {
 		super(lineBuilder);
 	}
 
-	private static boolean isLine(float[] arguments) {
-		boolean widthThin = arguments[2] < 1;
-		boolean heightThin = arguments[3] < 1;
-		return (widthThin || heightThin) && !(widthThin && heightThin);
-	}
-
 	@Override
 	public void process(Operator pdfo, List<COSBase> arguments) throws IOException {
 		float[] floats = floatListTo(arguments);
 
-		if (!isLine(floats))
-			return;
-
 		lineBuilder.moveTo(floats[0], floats[1]);
-		lineBuilder.lineTo(floats[2], floats[3]);
+		lineBuilder.lineTo(floats[0] + floats[2], floats[1]);
+		lineBuilder.lineTo(floats[0] + floats[2], floats[1] + floats[3]);
+		lineBuilder.lineTo(floats[0], floats[1] + floats[3]);
+		lineBuilder.lineTo(floats[0], floats[1]);
 	}
 
 	@Override

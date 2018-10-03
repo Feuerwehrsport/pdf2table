@@ -18,7 +18,8 @@ public class Pdf2Table {
 
 	public static void main(String[] args) {
 		try {
-			new Pdf2Table("/home/georf/Zeiten-alle-Dosen.pdf", true);
+			//new Pdf2Table("/home/georf/eclipse-workspace/pdf2table/src/test/resources/pdfs/freie-rahmen.pdf", true);
+			new Pdf2Table("/home/georf/eclipse-workspace/pdf2table/src/test/resources/pdfs/2018-inselpokal.pdf", true);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -53,6 +54,7 @@ public class Pdf2Table {
 		for (PDPage page : doc.getDocumentCatalog().getPages()) {
 			processPage(page);
 		}
+		doc.close();
 	}
 
 	private void processPage(PDPage page) throws IOException {

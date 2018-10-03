@@ -16,6 +16,7 @@ public class LineBuilder {
 
 	public void lineTo(float x, float y) {
 		processor.addLine(new Line(lastPoint[0], lastPoint[1], x * scale[0], y * scale[1]));
+		moveTo(x, y);
 	}
 
 	public void changeScale(float x, float y) {

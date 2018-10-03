@@ -13,7 +13,7 @@ class LineBuilderTest {
 	private LineBuilder builder;
 
 	@BeforeEach
-	void prepare() {
+	void setUp() {
 		this.processor = mock(PageProcessor.class);
 		this.builder = new LineBuilder(processor);
 	}

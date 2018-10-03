@@ -20,10 +20,12 @@ public class PageProcessor extends PDFStreamEngine {
 	private CoordinateList xs = new CoordinateList();
 	private CoordinateList ys = new CoordinateList();
 	private List<Line> lines = new ArrayList<Line>();
+	private float pageHeight;
 
 	public PageProcessor(PDPage page, Line area) {
 		this.page = page;
 		this.area = area;
+		this.pageHeight = page.getMediaBox().getHeight();
 	}
 
 	public String[][] extractTable() throws IOException {
@@ -40,13 +42,17 @@ public class PageProcessor extends PDFStreamEngine {
 
 		String[][] output = new String[ys.size() - 1][xs.size() - 1];
 		for (int xi = 1; xi < xs.size(); xi++) {
-			for (int yi = 1; yi < ys.size(); yi++) {
-				Rectangle2D rect = new Rectangle2D.Float(xs.get(xi - 1), ys.get(yi - 1),
-						Math.abs(xs.get(xi - 1) - xs.get(xi)), Math.abs(ys.get(yi - 1) - ys.get(yi)));
+			for (int yi = ys.size() - 1; yi > 0; yi--) {
+				float x = xs.get(xi - 1);
+				float y = pageHeight - ys.get(yi);
+				float width = Math.abs(xs.get(xi - 1) - xs.get(xi));
+				float height = Math.abs(ys.get(yi) - ys.get(yi - 1));
+				Rectangle2D rect = new Rectangle2D.Float(x, y, width, height);
 				PDFTextStripperByArea stripper = new PDFTextStripperByArea();
 				stripper.addRegion("region", rect);
 				stripper.extractRegions(page);
-				output[ys.size() - yi - 1][xi - 1] = stripper.getTextForRegion("region").trim();
+				String text = stripper.getTextForRegion("region").trim();
+				output[ys.size() - yi - 1][xi - 1] = text;
 			}
 		}
 
@@ -60,6 +66,9 @@ public class PageProcessor extends PDFStreamEngine {
 				xs.addWithTolerance(line.x());
 			if (line.isHorizontal())
 				ys.addWithTolerance(line.y());
+		} else {
+			System.err.println("NOT IN AREA");
+			System.err.println(line);
 		}
 	}
 

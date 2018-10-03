@@ -2,6 +2,7 @@ package de.georf.pdf2table;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CoordinateList {
@@ -14,6 +15,7 @@ public class CoordinateList {
 				return;
 		}
 		list.add(item);
+		Collections.sort(list);
 	}
 
 	public int size() {
