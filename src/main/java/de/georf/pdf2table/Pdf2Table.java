@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 
+import com.hp.hpl.jena.util.FileUtils;
+
 import de.georf.pdf2table.output.DebugPdf;
 import de.georf.pdf2table.output.OdsFile;
 
@@ -13,23 +15,13 @@ public class Pdf2Table {
 	private OdsFile ods;
 	private DebugPdf debugPdf;
 	private String sourcePath;
-	private boolean debug;
-	private Line area;
+	private String outputPath;
+	private boolean forceOverride;
 
-	public static void main(String[] args) {
-		try {
-			//new Pdf2Table("/home/georf/eclipse-workspace/pdf2table/src/test/resources/pdfs/freie-rahmen.pdf", true);
-			new Pdf2Table("/home/georf/eclipse-workspace/pdf2table/src/test/resources/pdfs/2018-inselpokal.pdf", true);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-
-	public Pdf2Table(String sourcePath, boolean debug) throws IOException {
+	public Pdf2Table(String sourcePath, String outputPath, boolean forceOverride) throws IOException {
 		this.sourcePath = sourcePath;
-		this.debug = debug;
-		this.area = new Line(0, 0, 590, 840);
+		this.outputPath = outputPath;
+		this.forceOverride = forceOverride;
 		startOutput();
 		processPages();
 		closeOutput();
@@ -37,16 +29,18 @@ public class Pdf2Table {
 
 	private void closeOutput() throws IOException {
 		ods.close();
-		if (debug)
+		if (Main.logger.isDebugEnabled())
 			this.debugPdf.close();
-		
+
 	}
 
 	private void startOutput() throws IOException {
-		this.ods = new OdsFile(sourcePath.replaceAll("\\.pdf$", ".ods"));
-		if (debug)
-			this.debugPdf = new DebugPdf(sourcePath.replaceAll("\\.pdf$", "-debug.pdf"));
-		
+		if (FileUtils.isFile(outputPath) && !forceOverride)
+			throw new IOException("File exists: " + outputPath);
+		this.ods = new OdsFile(outputPath);
+		if (Main.logger.isDebugEnabled())
+			this.debugPdf = new DebugPdf(sourcePath.replaceAll("\\.pdf$", "-debug.pdf"), forceOverride);
+
 	}
 
 	private void processPages() throws IOException {
@@ -58,10 +52,10 @@ public class Pdf2Table {
 	}
 
 	private void processPage(PDPage page) throws IOException {
-		PageProcessor processor = new PageProcessor(page, area);
+		PageProcessor processor = new PageProcessor(page);
 		String[][] tableData = processor.extractTable();
 		ods.addTable(tableData);
-		if (debug)
+		if (Main.logger.isDebugEnabled())
 			debugPdf.addPage(page, processor, tableData);
 	}
 }

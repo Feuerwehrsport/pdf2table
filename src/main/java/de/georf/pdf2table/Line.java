@@ -1,5 +1,6 @@
 package de.georf.pdf2table;
 
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 public class Line {
 
@@ -47,8 +48,9 @@ public class Line {
 		return Math.abs(fromY - toY);
 	}
 
-	public boolean inArea(Line area) {
-		return fromX > area.getFromX() && toX < area.getToX() && fromY > area.getFromY() && toY < area.getToY();
+	public boolean inArea(PDRectangle area) {
+		return fromX > area.getLowerLeftX() && toX < area.getUpperRightX() && fromY > area.getLowerLeftY()
+				&& toY < area.getUpperRightY();
 	}
 
 	public String toString() {

@@ -21,8 +21,8 @@ class PageProcessorTest {
 
 	@BeforeEach
 	void setUp() {
-		area = new Line(0, 0, 590, 840);
-		processor = new PageProcessor(new PDPage(), area);
+		Main.setLogger(true, true);
+		processor = new PageProcessor(new PDPage());
 	}
 
 	@Test
@@ -77,7 +77,7 @@ class PageProcessorTest {
 		assertNotNull(odsIs, "ODS " + baseName + " not found");
 
 		PDDocument doc = PDDocument.load(pdfIs);
-		processor = new PageProcessor(doc.getPage(page), area);
+		processor = new PageProcessor(doc.getPage(page));
 		String[][] expectedTable = readOdsTable(odsIs, "Seite " + (page + 1), rows, columns);
 		compareTable(expectedTable, processor.extractTable());
 		doc.close();

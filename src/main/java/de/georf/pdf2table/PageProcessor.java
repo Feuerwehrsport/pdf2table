@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
+import org.apache.pdfbox.contentstream.operator.Operator;
+import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 
 import de.georf.pdf2table.operators.ChangeMatrixOperator;
@@ -16,15 +19,15 @@ import de.georf.pdf2table.operators.RectangleOperator;
 
 public class PageProcessor extends PDFStreamEngine {
 	private PDPage page;
-	private Line area;
+	private PDRectangle area;
 	private CoordinateList xs = new CoordinateList();
 	private CoordinateList ys = new CoordinateList();
 	private List<Line> lines = new ArrayList<Line>();
 	private float pageHeight;
 
-	public PageProcessor(PDPage page, Line area) {
+	public PageProcessor(PDPage page) {
 		this.page = page;
-		this.area = area;
+		this.area = page.getMediaBox();
 		this.pageHeight = page.getMediaBox().getHeight();
 	}
 
@@ -66,13 +69,20 @@ public class PageProcessor extends PDFStreamEngine {
 				xs.addWithTolerance(line.x());
 			if (line.isHorizontal())
 				ys.addWithTolerance(line.y());
-		} else {
-			System.err.println("NOT IN AREA");
-			System.err.println(line);
-		}
+			if (Main.logger.isInfoEnabled())
+				Main.logger.info("Add line: " + line);
+		} else if (Main.logger.isInfoEnabled())
+			Main.logger.info("NOT IN AREA: " + line);
 	}
 
 	public List<Line> getLines() {
 		return lines;
+	}
+
+	@Override
+	protected void unsupportedOperator(Operator operator, List<COSBase> operands) throws IOException {
+		if (Main.logger.isDebugEnabled()) {
+			Main.logger.debug("Not used »" + operator.getName() + "«: " + operands);
+		}
 	}
 }
